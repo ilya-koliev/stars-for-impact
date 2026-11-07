@@ -1232,7 +1232,7 @@ function videoHtml() {
 
 /* ---------- INTERSTITIALS + END ---------- */
 var INTER = {
-  1: { k: 'Chapter 1 · First ride', h: 'Valeria never rates her rides', p: 'She rides inDrive 10+ times a month and closes every rating sheet. Only riders like her get this invite.', persona: true, cta: 'Start the ride' },
+  1: { k: 'Chapter 1 · First ride', h: 'Valeria never rates her rides', p: 'She rides inDrive 4+ times a month and closes every rating sheet. Only riders like her get this invite.', persona: true, cta: 'Start the ride' },
   2: { k: 'Chapter 2 · A few rides later', h: 'Progress, right next to the stars', p: 'Valeria joined and has <b>4 ratings</b> so far. One more, and inDrive adds a ' + sol(10) + ' bonus for the program.', cta: 'Continue' },
   3: { k: 'Chapter 3 · Next morning', h: 'Rating before the next order', p: 'Most ratings come from the sheet that opens with the app. We add one line and a snackbar, no extra steps.', cta: 'Continue' },
   4: { k: 'Chapter 4 · End of the pilot month', h: 'The goal is reached', p: 'The pilot fund is capped, so inDrive knows the cost up front. When Lima fills it, every rider sees the result.', cta: 'See the result' }
@@ -1240,9 +1240,9 @@ var INTER = {
 function interHtml(n) {
   var d = INTER[n];
   return '<div class="inter" id="inter"' + act('interGo') + '>' +
-    '<svg class="in-ring" viewBox="0 0 30 30"><circle class="bg" cx="15" cy="15" r="13"/><circle class="fg" cx="15" cy="15" r="13"/></svg>' +
+    '<svg class="in-ring" viewBox="0 0 30 30"><circle class="bg" cx="15" cy="15" r="13"/><circle class="fg" cx="15" cy="15" r="13" style="animation-duration:' + (n === 1 ? 3 : 3.5) + 's"/></svg>' +
     '<div class="in-k">' + d.k + '</div><div class="in-h">' + d.h + '</div><p class="in-p">' + d.p + '</p>' +
-    (d.persona ? '<div class="in-persona"><span class="av">' + CFG.persona.initial + '</span><div><b>' + CFG.persona.name + ' · ' + CFG.persona.area + '</b><small>10+ rides a month · 0 ratings in 30 days</small></div></div>' : '') +
+    (d.persona ? '<div class="in-persona"><span class="av">' + CFG.persona.initial + '</span><div><b>' + CFG.persona.name + ' · ' + CFG.persona.area + '</b><small>4+ rides a month · 0 ratings in 30 days</small></div></div>' : '') +
     '<div class="in-go"><button class="btn btn-lime" data-hint="go"' + act('interGo') + '>' + d.cta + ic('arrowR', 20, 2.2) + '</button></div></div>';
 }
 function endHtml() {
@@ -1296,11 +1296,11 @@ var STEPS = {
     base: bArrived, overlay: function () { return ['inter-1', interHtml(1)]; },
     enter: function () { interAuto(); },
     target: '[data-hint=go]', tip: 'Tap to start the ride',
-    panel: ['Meet Valeria', 'She rides inDrive 10+ times a month in Lima and never rates. The feature is shown only to riders like her.']
+    panel: ['Meet Valeria', 'She rides inDrive 4+ times a month in Lima and never rates. The feature is shown only to riders like her.']
   },
   arrive: {
     ch: 1, map: 'arrived', base: bArrived,
-    enter: function () { carRun(0.86, 1, 1700, true); later(function () { go('sheet', { noHistory: true }); }, 1900); },
+    enter: function () { carRun(0.9, 1, 1000, true); later(function () { go('sheet', { noHistory: true }); }, 1100); },
     panel: ['The ride ends in Barranco', 'The usual rating sheet is about to open, with one new line in it.']
   },
   sheet: {
@@ -1503,7 +1503,7 @@ function goBack() {
 }
 function restart() { var started = S.started; S = fresh(); S.started = started || true; resetLayers(); closeChapters(); go('c1', { noHistory: true }); }
 function jumpChapter(n) { S = fresh(); S.started = true; resetLayers(); closeChapters(); if (!LY.root.classList.contains('started')) showDemo(); go(CHAPTERS[n - 1].start, { noHistory: true }); }
-function interAuto() { later(function () { var st = STEPS[S.step]; if (st && st.go && S.step.charAt(0) === 'c') go(st.go); }, 6500); }
+function interAuto() { later(function () { var st = STEPS[S.step]; if (st && st.go && S.step.charAt(0) === 'c') go(st.go); }, S.step === 'c1' ? 3000 : 3500); }
 
 /* ---------- rating logic ---------- */
 function cat(r) { return r >= 5 ? 'c' : r === 4 ? 'b' : r ? 'r' : ''; }
