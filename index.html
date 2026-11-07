@@ -956,6 +956,9 @@ img { display: block; }
 .big-next { position: absolute; left: 50%; bottom: calc(var(--safe-bottom, 24px) + 22px); transform: translateX(-50%); pointer-events: auto; display: inline-flex; align-items: center; gap: 10px; height: 56px; padding: 0 24px 0 28px; border-radius: 999px; background: var(--ink); color: var(--lime); font-size: 17px; font-weight: 700; letter-spacing: -.2px; box-shadow: 0 10px 28px rgba(0, 0, 0, .28), 0 0 0 3px rgba(193, 241, 29, .55); animation: bigIn .45s var(--e-out) both, btnPulse 1.6s ease-in-out .5s infinite; z-index: 5; }
 @keyframes bigIn { from { opacity: 0; transform: translate(-50%, 24px); } to { opacity: 1; transform: translate(-50%, 0); } }
 @media (prefers-reduced-motion: reduce) { .big-next { animation: none !important; } }
+
+/* the icon circle is a span too: keep it a centred grid, not the caption style */
+.imp-tease .imp-ic { display: grid; place-items: center; margin-top: 0; line-height: 0; color: var(--ink); }
 </style>
 </head>
 <body>
