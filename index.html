@@ -1465,7 +1465,7 @@ var STEPS = {
     ch: 1, map: 'arrived', dark: true, go: 'arrive', before: function () { preset(1); },
     base: bArrived, overlay: function () { return ['inter-1', interHtml(1)]; },
     enter: function () { interAuto(); },
-    target: '[data-hint=go]', tip: 'Tap to start'
+    target: '[data-hint=go]', tip: 'Tap to start', noHint: true
   },
   arrive: {
     ch: 1, map: 'arrived', base: bArrived,
@@ -1519,7 +1519,7 @@ var STEPS = {
     ch: 2, map: 'ride', dark: true, go: 'ride', before: function () { preset(2); },
     base: bMoving, overlay: function () { return ['inter-2', interHtml(2)]; },
     enter: function () { interAuto(); },
-    target: '[data-hint=go]', tip: 'Tap to continue'
+    target: '[data-hint=go]', tip: 'Tap to continue', noHint: true
   },
   ride: {
     ch: 2, map: 'ride', base: bMoving,
@@ -1537,7 +1537,7 @@ var STEPS = {
   rideDone: {
     ch: 2, map: 'ride', base: bMoving,
     enter: function () { rideDoneFx(); }, nextAfter: 5000,
-    target: function () { return $('.snack-link', LY.toast) ? '.snack-link' : null; }, tip: 'Tap to open the program',
+    target: function () { return $('.snack-link', LY.toast) ? '.snack-link' : null; }, tip: '',
     panel: ['Bonus unlocked', 'In a ride, a snackbar says thanks. The program name opens the page.'],
     next: function () { go('c3'); }
   },
@@ -1553,7 +1553,7 @@ var STEPS = {
     ch: 3, map: 'home', dark: true, go: 'reopen', before: function () { preset(3); },
     base: bHome, overlay: function () { return ['inter-3', interHtml(3)]; },
     enter: function () { interAuto(); },
-    target: '[data-hint=go]', tip: 'Tap to continue'
+    target: '[data-hint=go]', tip: 'Tap to continue', noHint: true
   },
   reopen: {
     ch: 3, map: 'home', base: bHome,
@@ -1600,7 +1600,7 @@ var STEPS = {
     base: bHome, page: function () { return ['impact-cap', impactPage({ ch: 4, cap: true, count: S.count, given: S.given, noanim: true })]; },
     overlay: function () { return ['inter-4', interHtml(4)]; },
     enter: function () { interAuto(); },
-    target: '[data-hint=go]', tip: 'Tap to see the result'
+    target: '[data-hint=go]', tip: 'Tap to see the result', noHint: true
   },
   cap: {
     ch: 4, map: 'home', base: bHome,
@@ -1959,7 +1959,7 @@ var NOHINT = /[?&]shot=/.test(location.search || '');
 function armHint(d1, d2) {
   disarmHint();
   if (!S.started || NOHINT) return;
-  var st = STEPS[S.step]; if (!st) return;
+  var st = STEPS[S.step]; if (!st || st.noHint) return;
   if (!stepTarget(st)) { if (!st.noNext) HT.a = setTimeout(nudgeNext, d1 || st.nextAfter || 1300); return; }
   HT.a = setTimeout(showRing, d1 || 1300);
   HT.b = setTimeout(function () { showRing(); showTip(); }, d2 || 2800);
@@ -1977,7 +1977,9 @@ function targetEl() {
 }
 function handSvg() { return '<svg class="hand" width="48" height="48" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.84 15.87l-4.54-2.26c-.17-.07-.35-.11-.54-.11H13v-6c0-.83-.67-1.5-1.5-1.5S10 6.67 10 7.5v10.74l-3.43-.72c-.08-.01-.15-.03-.24-.03-.31 0-.59.13-.79.33l-.79.8 4.94 4.94c.27.27.65.44 1.06.44h6.79c.75 0 1.33-.55 1.44-1.28l.75-5.27c.01-.07.02-.14.02-.2 0-.62-.38-1.16-.91-1.38z" fill="#fff" stroke="#141414" stroke-width="1.15" stroke-linejoin="round" paint-order="stroke"/></svg>'; }
 function showRing() {
+  var st = STEPS[S.step]; if (st && st.noHint) return;
   var el = targetEl(); if (!el) return;
+  if (el.classList.contains('stars')) { showTip(); return; } /* stars: just the tooltip, no ring or blinking dot */
   if (el.closest('.dr-list, .rate-sheet')) { try { el.scrollIntoView({ block: 'nearest' }); } catch (e) { /* old browsers */ } }
   var r = relRect(el), pad = 6, br = Math.min(28, (parseFloat(getComputedStyle(el).borderRadius) || 12) + pad);
   /* keep the dot off the label: wide buttons get it near the right end, menu rows between the label and the meta; stars stay centred */
@@ -1987,6 +1989,7 @@ function showRing() {
   if (old) { var tip = $('.hint-tip', LY.hint); LY.hint.innerHTML = html; if (tip) LY.hint.appendChild(tip); } else LY.hint.innerHTML = html;
 }
 function showTip() {
+  if (STEPS[S.step] && STEPS[S.step].noHint) return;
   var text = stepTip(STEPS[S.step]), el = targetEl(); if (!text || !el) return;
   var old = $('.hint-tip', LY.hint); if (old) old.remove();
   var r = relRect(el), s = scr(), tip = document.createElement('div');
