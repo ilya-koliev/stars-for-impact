@@ -952,10 +952,10 @@ img { display: block; }
 .rp-ad .pic { width: 104px; flex: none; position: relative; background: linear-gradient(160deg, #E4E7D3, #C9D39A); }
 .rp-ad .pic .ad { position: absolute; right: 8px; top: 8px; font-size: 11px; font-weight: 600; color: #fff; background: rgba(0, 0, 0, .45); border-radius: 6px; padding: 2px 6px; }
 
-/* ===== stars hint: the touch dot glides over all five stars ===== */
-.hint-tap.sweep { animation: starSweep 3.2s ease-in-out infinite; }
-@keyframes starSweep { 0%, 8% { transform: translateX(calc(-1 * var(--sw, 80px))); } 42%, 58% { transform: translateX(var(--sw, 80px)); } 92%, 100% { transform: translateX(calc(-1 * var(--sw, 80px))); } }
-@media (prefers-reduced-motion: reduce) { .hint-tap.sweep { animation: none !important; } }
+/* ===== big in-screen Next button when nothing else is waiting ===== */
+.big-next { position: absolute; left: 50%; bottom: calc(var(--safe-bottom, 24px) + 22px); transform: translateX(-50%); pointer-events: auto; display: inline-flex; align-items: center; gap: 10px; height: 56px; padding: 0 24px 0 28px; border-radius: 999px; background: var(--ink); color: var(--lime); font-size: 17px; font-weight: 700; letter-spacing: -.2px; box-shadow: 0 10px 28px rgba(0, 0, 0, .28), 0 0 0 3px rgba(193, 241, 29, .55); animation: bigIn .45s var(--e-out) both, btnPulse 1.6s ease-in-out .5s infinite; z-index: 5; }
+@keyframes bigIn { from { opacity: 0; transform: translate(-50%, 24px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@media (prefers-reduced-motion: reduce) { .big-next { animation: none !important; } }
 </style>
 </head>
 <body>
@@ -1962,7 +1962,11 @@ function armHint(d1, d2) {
   HT.b = setTimeout(function () { showRing(); showTip(); }, d2 || 2800);
 }
 function disarmHint() { clearTimeout(HT.a); clearTimeout(HT.b); if (LY.hint) LY.hint.innerHTML = ''; $$('[data-next]').forEach(function (b) { b.classList.remove('glow'); }); }
-function nudgeNext() { $$('[data-next]').forEach(function (b) { b.classList.add('glow'); }); }
+function nudgeNext() {
+  $$('[data-next]').forEach(function (b) { b.classList.add('glow'); });
+  /* and a big button right on the screen, so the next step is never a guess */
+  if (LY.hint && !$('.big-next', LY.hint)) LY.hint.insertAdjacentHTML('beforeend', '<button class="big-next"' + act('next') + '>Next step' + ic('arrowR', 20, 2.4) + '</button>');
+}
 function visible(el) { var r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0; }
 function targetEl() {
   var sel = stepTarget(STEPS[S.step]); if (!sel) return null;
@@ -1973,11 +1977,10 @@ function showRing() {
   var el = targetEl(); if (!el) return;
   if (el.closest('.dr-list, .rate-sheet')) { try { el.scrollIntoView({ block: 'nearest' }); } catch (e) { /* old browsers */ } }
   var r = relRect(el), pad = 6, br = Math.min(28, (parseFloat(getComputedStyle(el).borderRadius) || 12) + pad);
-  var sweep = el.classList.contains('stars'); /* the dot glides across all five: any star works */
-  /* keep the dot off the label: wide buttons get it near the right end, menu rows between the label and the meta */
-  var dx = sweep ? r.w / 2 : el.classList.contains('dr-it') ? r.w * 0.7 : r.w > 120 ? r.w - 38 : r.w / 2;
+  /* keep the dot off the label: wide buttons get it near the right end, menu rows between the label and the meta; stars stay centred */
+  var dx = el.classList.contains('stars') ? r.w / 2 : el.classList.contains('dr-it') ? r.w * 0.7 : r.w > 120 ? r.w - 38 : r.w / 2;
   var old = $('.hint-ring', LY.hint), html = '<div class="hint-ring" style="left:' + (r.x - pad) + 'px;top:' + (r.y - pad) + 'px;width:' + (r.w + pad * 2) + 'px;height:' + (r.h + pad * 2) + 'px;border-radius:' + br + 'px"></div>' +
-    '<div class="hint-tap' + (sweep ? ' sweep' : '') + '" style="left:' + (r.x + dx) + 'px;top:' + (r.y + r.h / 2) + 'px;--sw:' + Math.round(r.w / 2 - 28) + 'px"><span class="rip"></span><span class="rip r2"></span><span class="dot"></span></div>';
+    '<div class="hint-tap" style="left:' + (r.x + dx) + 'px;top:' + (r.y + r.h / 2) + 'px"><span class="rip"></span><span class="rip r2"></span><span class="dot"></span></div>';
   if (old) { var tip = $('.hint-tip', LY.hint); LY.hint.innerHTML = html; if (tip) LY.hint.appendChild(tip); } else LY.hint.innerHTML = html;
 }
 function showTip() {
