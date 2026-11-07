@@ -21,7 +21,7 @@
   --safe-top: 54px; --safe-bot: 30px;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html, body { height: 100%; }
+html, body { height: 100%; overscroll-behavior: none; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; touch-action: manipulation; }
 body { font-family: var(--font); color: var(--text); background: #EDECE7; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; line-height: 1.3; overflow: hidden; }
 button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; text-align: inherit; }
 textarea { font: inherit; }
@@ -771,6 +771,27 @@ img { display: block; }
 .st-top .x::after, .ty-x::after, .pg-nav .nb::after, .x-btn::after { content: ''; position: absolute; inset: -7px; }
 .x-btn { position: absolute; }
 .homebar.light { background: #fff; }
+
+/* ===== robustness review pass ===== */
+:root { color-scheme: light only; }
+.desktop .panel { width: auto; }
+.rate-sheet { scroll-padding-bottom: calc(var(--safe-bot) + 86px); }
+@media (max-height: 700px) {
+  .mobile .st-chips.static { display: none; }
+  .mobile .st-media { height: 36%; min-height: 120px; }
+  .mobile .st-h { font-size: 25px; }
+  .mobile .st-steps { margin-top: 16px; gap: 8px; }
+  .mobile .st-step { padding: 10px 12px; }
+  .mobile .st-goal { margin-top: 14px; padding: 12px 14px; }
+  .mobile .st-goal .big { font-size: 26px; }
+  .mobile .st-last .st-kick { margin-top: 4px !important; }
+  .mobile .st-you { margin-top: 8px; padding: 9px 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nudge { animation: none !important; transform: translateX(-50%); }
+  .plus { animation: none !important; }
+  .confetti { display: none; }
+}
 </style>
 </head>
 <body>
@@ -1500,6 +1521,7 @@ function goBack() {
   S = Object.assign(fresh(), h.snap); S.history = hist; S.started = true;
   resetLayers();
   go(h.step, { noHistory: true, instant: true, keepState: true });
+  if (/^c\d$/.test(h.step)) clearTimers(); /* Back to a chapter card: stay there */
 }
 function restart() { var started = S.started; S = fresh(); S.started = started || true; resetLayers(); closeChapters(); go('c1', { noHistory: true }); }
 function jumpChapter(n) { S = fresh(); S.started = true; resetLayers(); closeChapters(); if (!LY.root.classList.contains('started')) showDemo(); go(CHAPTERS[n - 1].start, { noHistory: true }); }
@@ -1579,10 +1601,12 @@ function storyLater() { if (S.step !== 'story') return; S.joined = false; go('th
 function rideDoneFx() {
   var rb = $('#rateBlock');
   if (rb) $$('.star', rb).forEach(function (b, i) { b.classList.toggle('on', i < S.rating); });
+  if (progState(S.count).full) return; /* already paid: re-entered via Back or a resize rebuild */
   var segs = $$('#progSegs .seg'), p0 = progState(S.count);
   var target = segs[Math.min(p0.filled, segs.length - 1)];
   later(function () {
     coinFly($('#rateBlock .stars'), target, sol(1), function () {
+      if (S.step !== 'rideDone') return; /* user moved on while the coin flew */
       S.count += 1; S.given += 1;
       var p = progState(S.count);
       if (target) target.classList.add('on');
@@ -1818,8 +1842,8 @@ function nudge(e, text) {
   var b = LY.screen.getBoundingClientRect(), k = (b.width / LY.screen.offsetWidth) || 1;
   var x = (e.clientX - b.left) / k, y = (e.clientY - b.top) / k;
   var n = document.createElement('div'); n.className = 'nudge'; n.textContent = text;
-  n.style.left = Math.max(80, Math.min(scr().w - 80, x)) + 'px'; n.style.top = Math.max(20, y - 46) + 'px';
-  LY.fx.appendChild(n); setTimeout(function () { n.remove(); }, 1700);
+  n.style.top = Math.max(20, y - 46) + 'px';
+  LY.fx.appendChild(n); var hw = n.offsetWidth / 2 + 8; n.style.left = Math.max(hw, Math.min(scr().w - hw, x)) + 'px'; setTimeout(function () { n.remove(); }, 1700);
 }
 
 /* ---------- actions ---------- */
@@ -1844,7 +1868,7 @@ var ACTIONS = {
   menu: function () { go('menu'); },
   menuClose: function () { go('home'); },
   menuImpact: function () { go('impact'); },
-  impactBack: function () { if (S.step === 'tyImpact') go('thanks', { noHistory: true }); else if (S.step === 'impact') go('home'); },
+  impactBack: function () { if (S.step === 'tyImpact') { S.history.pop(); go('thanks', { noHistory: true }); } else if (S.step === 'impact') go('home'); },
   play: function () { playVideo(); },
   replay: function () { playVideo(); },
   faq: function (a, el) { if (el && el.parentNode) el.parentNode.classList.toggle('open'); },
@@ -1996,11 +2020,12 @@ function fit() {
     LY.device.style.transform = ''; LY.stage.style.width = ''; LY.stage.style.height = '';
   }
 }
-function pickMode() { return window.innerWidth < 760 ? 'mobile' : 'desktop'; }
+function pickMode() { var shortTouch = window.innerHeight < 520 && !!window.matchMedia && matchMedia('(pointer: coarse)').matches; return window.innerWidth < 760 || shortTouch ? 'mobile' : 'desktop'; }
 function onResize() {
   var m = pickMode();
   if (m !== MODE) { MODE = m; buildShell(); return; }
-  fit(); layoutRide(); if (MAP.preset) { var p = MAP.preset; MAP.preset = null; setMap(p, true); }
+  fit(); layoutRide(); armHint();
+  if (MAP.preset === 'ride') placeCar(MAP.t, true); else if (MAP.preset) { var p = MAP.preset; MAP.preset = null; setMap(p, true); }
 }
 function drawQr() {
   var box = $('#qrBox'); if (!box || !CFG.publicUrl) return;
@@ -2029,6 +2054,8 @@ function boot() {
   buildShell();
   document.addEventListener('click', onClick);
   document.addEventListener('keydown', onKey);
+  ['wheel', 'touchmove'].forEach(function (ev) { document.addEventListener(ev, function () { if (S.started) armHint(4000, 8000); }, { passive: true, capture: true }); });
+  document.addEventListener('touchstart', function () {}, { passive: true }); /* enables :active press states on iOS */
   window.addEventListener('resize', function () { clearTimeout(boot._r); boot._r = setTimeout(onResize, 120); });
   try {
     if (window.google && google.script && google.script.url) google.script.url.getLocation(function (l) { startFromHash((l && l.hash) || ''); });
