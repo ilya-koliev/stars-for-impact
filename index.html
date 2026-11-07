@@ -881,6 +881,62 @@ img { display: block; }
 .vid .vtop .wm { height: 10px; width: auto; display: block; }
 .vid .vtop span:first-child { padding: 5px 8px; }
 .pn-top .pn-title { margin-top: 0; }
+
+/* ===== cover: kicker + the deck tagline ===== */
+.cv-kick { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #3E4A0E; background: var(--lime-tint); border: 1px solid var(--lime-line); border-radius: 999px; padding: 7px 12px; }
+.cv-kick:before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--lime-deep, #7A9A12); }
+.desktop .cv-kick { margin-top: 0; }
+.cv-h1 { margin-top: 18px; }
+.cv-tag { font-size: 26px; line-height: 1.2; font-weight: 700; color: var(--ink); letter-spacing: -.4px; max-width: 460px; }
+.desktop .cv-cta { margin-top: 28px; }
+.mobile .cv-badge-m { display: none; }
+.mobile .cv-kick { align-self: flex-start; margin-top: 8px; }
+.mobile .cv-h1 { margin-top: 16px; }
+.mobile .cv-tag { font-size: 22px; margin-bottom: 0; }
+.mobile .cv-cta { margin-top: auto; }
+
+/* ===== cover QR sits in the left column, never over the phone ===== */
+.desktop .cv-qr { position: static; display: flex; width: max-content; margin-top: 30px; }
+.desktop .cv-qr b { font-size: 14px; }
+.desktop.started .cv-qr { display: none; }
+@media (max-height: 760px) { .desktop .cv-qr { margin-top: 18px; } }
+
+/* ===== thank-you card: tighter, program name is the link ===== */
+.impact-card { padding: 14px 16px 14px; }
+.impact-card h2 { margin: 0 0 4px; }
+.impact-card .photo { height: 104px; margin-top: 12px; object-position: 50% 42%; }
+.impact-card .prog-link { display: inline-flex; align-items: center; gap: 2px; font: inherit; font-weight: 700; color: var(--ink); text-decoration: underline; text-decoration-color: rgba(17, 17, 17, .35); text-underline-offset: 3px; padding: 0; background: none; }
+.impact-card .prog-link svg { opacity: .7; }
+.impact-card .ofr { margin-top: 10px; padding: 12px 14px; }
+
+/* ===== goal reached: quieter monthly card ===== */
+.cap-hero { text-align: left; padding: 18px 18px 18px; }
+.cap-hero .cap-k { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #2F3A08; background: rgba(17, 17, 17, .08); border-radius: 999px; padding: 5px 10px 5px 8px; }
+.cap-hero .cap-k svg { width: 16px; height: 16px; border-radius: 50%; background: var(--ink); color: var(--lime); padding: 3px; }
+.cap-hero h2 { margin-top: 12px; font-size: 26px; }
+.cap-hero .bar { margin-top: 14px; height: 10px; }
+.cap-hero .bar i { background: var(--ink); }
+.cap-hero .ic-row { font-size: 14px; }
+.cap-hero p { margin-top: 12px; font-size: 14.5px; }
+
+/* ===== cover v3: two value tiles, bigger QR ===== */
+.cv-two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 22px; max-width: 470px; }
+.cv-tile { background: rgba(255, 255, 255, .8); border-radius: 18px; padding: 12px 14px 13px; display: flex; flex-direction: column; }
+.cv-tile .n { width: 32px; height: 32px; border-radius: 10px; background: var(--lime); color: var(--ink); display: grid; place-items: center; }
+.cv-tile b { font-size: 15.5px; font-weight: 700; color: var(--ink); margin-top: 10px; letter-spacing: -.2px; }
+.cv-tile small { font-size: 13px; color: #55575C; line-height: 1.3; margin-top: 2px; }
+.desktop .cv-cta { margin-top: 22px; }
+.desktop .cv-qr { margin-top: 22px; gap: 14px; }
+.desktop .cv-qr canvas, .desktop .cv-qr svg { width: 112px; height: 112px; }
+.desktop .cv-qr b { font-size: 15px; }
+.desktop .cv-qr small { font-size: 13px; }
+.mobile .cv-two { margin-top: 18px; max-width: none; }
+.mobile .cv-tile b { font-size: 14.5px; }
+.mobile .cv-tile small { font-size: 12.5px; }
+.mobile .cv-cta { margin-top: auto; }
+@media (max-height: 760px) { .desktop .cv-h1 { font-size: 56px; } .desktop .cv-two { margin-top: 16px; } .desktop .cv-qr { margin-top: 16px; } .desktop .cv-qr canvas, .desktop .cv-qr svg { width: 92px; height: 92px; } .desktop #qrBox { width: 92px !important; height: 92px !important; } }
+
+.mobile .cv-h1 { margin-top: 26px; }
 </style>
 </head>
 <body>
@@ -1190,8 +1246,9 @@ function storySafe(o) {
   return '<div class="st-chips">' + storyRated(o) + (o && o.low ? '<div class="st-safe">' + ic('shieldOk', 16, 2.2) + 'Your report went to our safety team</div>' : '') + '</div>';
 }
 function storyChips(o) {
-  var r = (o && o.rating) || 0; if (!r) return '';
-  return '<div class="st-chips-row">' + storyRated(o, 'dark') + (o && o.low ? '<div class="st-safe static">' + ic('shieldOk', 16, 2.2) + 'Your report went to our safety team</div>' : '') + '</div>';
+  /* no "You rated Carlos" chip; only the safety chip after a low rating */
+  if (!(o && o.low)) return '';
+  return '<div class="st-chips-row"><div class="st-safe static">' + ic('shieldOk', 16, 2.2) + 'Your report went to our safety team</div></div>';
 }
 function storyMedia() {
   return '<div class="st-media same">' + (photo(0) ? '<img src="' + photo(0) + '" alt="A woman driving">' : '') + '</div>';
@@ -1234,12 +1291,10 @@ function thankYouPage(o) {
 }
 function impactCard(o, low) {
   return '<div class="impact-card" id="impactCard">' +
-    '<span class="tag">' + ic('heart', 14, 2.4) + 'You’re in</span>' +
     '<h2>' + (low ? 'Your review still counts' : sol(1) + ' is on its way') + '</h2>' +
-    '<p>to ' + CFG.program + '</p>' +
+    '<p>to <button class="prog-link"' + act('openImpact') + ' data-hint="howlink">' + CFG.program + ic('chevR', 15, 2.4) + '</button></p>' +
     (photo(1) ? '<img class="photo" src="' + photo(1) + '" alt="">' : '') +
     progressCard(o.count, { title: 'Next ' + sol(CFG.bonus) + ' bonus', animate: true, short: true }) +
-    '<button class="link"' + act('openImpact') + ' data-hint="howlink">About the program' + ic('chevR', 18, 2.2) + '</button>' +
   '</div>';
 }
 function joinLaterCard() {
@@ -1270,9 +1325,9 @@ function drawerHtml(o) {
 function impactPage(o) {
   var f = FUND[o.ch] || FUND[3], cap = o.cap, p = progState(o.count);
   var hero = cap
-    ? '<div class="cap-hero" id="capHero"><div class="tro">' + ic('trophy', 40, 1.8) + '</div><h2>Goal reached</h2>' +
-      '<p>Lima riders unlocked the full ' + sol(CFG.fundGoal) + ' in 27 days. It goes to driving-school scholarships for women.</p>' +
-      '<div class="bar"><i data-w="100"></i></div><div class="ic-row" style="margin-top:8px"><span>' + fmt(f.riders) + ' riders joined</span><b>' + sol(CFG.fundGoal) + '</b></div></div>'
+    ? '<div class="cap-hero" id="capHero"><span class="cap-k">' + ic('check', 14, 3) + 'November · Lima</span><h2>Monthly goal reached</h2>' +
+      '<div class="bar"><i data-w="100"></i></div><div class="ic-row" style="margin-top:8px"><span>' + fmt(f.riders) + ' riders</span><b>' + sol(CFG.fundGoal) + '</b></div>' +
+      '<p>Goes to driving-school scholarships for women. The December goal opens on the 1st.</p></div>'
     : '<div class="ip-hero" id="ipHero">' + heroPoster() + '</div>';
   return '<div class="page' + (o.noanim ? ' noanim' : '') + '" id="ipPage">' +
     '<div class="pg-nav"><button class="nb"' + act('impactBack') + ' aria-label="Back">' + ic('back', 24, 2) + '</button><h1>Social impact</h1></div>' +
@@ -1281,15 +1336,14 @@ function impactPage(o) {
       '<h2 class="ip-title">' + CFG.program + '</h2><p class="ip-trans">“Together, we go further”</p>' +
       '<p class="ip-lead">Helps women in Peru get a driving licence and earn with inDrive.</p>' +
       '<div class="ip-facts"><div><b>700</b><small>licences in 2025</small></div><div><b>1,100+</b><small>scholarships in 2026</small></div><div><b>19,000+</b><small>women applied in 2025</small></div></div></div>' +
-    '<div class="ip-sec">' +
-      (cap ? '' : communityCard(f)) +
+    (cap ? '' : '<div class="ip-sec">' +
+      communityCard(f) +
       '<div class="ip-two">' +
         '<div class="ip-card ip-you"><h3>From your ratings</h3><div class="ip-big">' + sol(o.given) + '</div><div class="r2" style="color:#3E4A0E;margin-top:4px">' + o.count + ' ratings' + (o.given > o.count ? ' + bonus' : '') + '</div></div>' +
-        (cap ? '<div class="ip-card"><h3>Next goal</h3><div class="ip-big">1 Dec</div><div class="r2">Bonus restarts then</div></div>'
-             : '<div class="ip-card"><h3>Next bonus</h3><div class="ip-big">' + p.filled + '/' + p.k + '</div><div class="ofr-bar" style="margin-top:10px;height:10px"><i style="width:0" data-w="' + p.pct + '"></i></div></div>') +
+        '<div class="ip-card"><h3>Next bonus</h3><div class="ip-big">' + p.filled + '/' + p.k + '</div><div class="ofr-bar" style="margin-top:10px;height:10px"><i style="width:0" data-w="' + p.pct + '"></i></div></div>' +
       '</div>' +
-    '</div>' +
-    '<div class="ip-sec"><h3 class="ip-h3">How it works</h3><div class="ip-steps">' +
+    '</div>') +
+    (cap ? '' : '<div class="ip-sec"><h3 class="ip-h3">How it works</h3><div class="ip-steps">' +
       '<div class="ip-step"><span class="n">' + ic('star', 22, 1.9) + '</span><div><b>You rate any ride</b><small>Good or bad, it counts</small></div></div>' +
       '<div class="ip-step"><span class="n">' + ic('handHeart', 22, 1.8) + '</span><div><b>inDrive gives ' + sol(1) + '</b><small>Plus ' + sol(CFG.bonus) + ' every ' + CFG.bonusEvery + ' ratings. Your fare doesn’t change</small></div></div>' +
       '<div class="ip-step"><span class="n">' + ic('idcard', 22, 1.8) + '</span><div><b>Women get their licence</b><small>Scholarships at partner driving schools</small></div></div>' +
@@ -1298,8 +1352,8 @@ function impactPage(o) {
     '<div class="ip-sec"><div class="faq" id="faq">' +
       faqIt('Who pays?', 'inDrive, from its own budget. Your fare doesn’t change.') +
       faqIt('Does a 1★ rating count?', 'Yes, every honest rating counts the same.') +
-      faqIt('Is there a limit?', 'Yes. The pilot fund is capped at ' + sol(CFG.fundGoal) + '.') +
-    '</div></div>' +
+      faqIt('Is there a limit?', 'Yes. The fund is ' + sol(CFG.fundGoal) + ' a month.') +
+    '</div></div>') +
     '<div class="ip-sec"><div class="ip-report dead"><span class="em">' + ic('gear', 22, 1.8) + '</span><div style="flex:1"><b>Stars for Impact</b><small>On</small></div><span class="tgl on"></span></div></div>' +
     '<div class="ip-terms">Terms &amp; Conditions<br><span>Prototype · Team Lucky Stars · numbers are illustrative</span></div>' +
   '</div>';
@@ -1328,10 +1382,10 @@ function videoHtml() {
 
 /* ---------- INTERSTITIALS + END ---------- */
 var INTER = {
-  1: { k: 'Chapter 1 · First ride', h: 'Valeria never rates her rides', p: 'She rides 4+ times a month and skips every rating. Only riders like her get this.', persona: true, cta: 'Start the ride' },
+  1: { k: 'Chapter 1 · First ride', h: 'Valeria never rates her rides', p: 'She rides 4+ times a month and skips every rating.', persona: true, cta: 'Start the ride' },
   2: { k: 'Chapter 2 · A few rides later', h: 'Progress next to the stars', p: 'Valeria has 4 ratings. One more, and inDrive adds ' + sol(10) + '.', cta: 'Continue' },
   3: { k: 'Chapter 3 · Next morning', h: 'Rating before the next order', p: 'Most ratings happen when the app opens. One offer and a snackbar, nothing more.', cta: 'Continue' },
-  4: { k: 'Chapter 4 · End of the month', h: 'The goal is reached', p: 'The fund is capped, so the cost is known up front.', cta: 'See the result' }
+  4: { k: 'Chapter 4 · End of the month', h: 'Monthly goal reached', p: 'A fixed fund every month, so the cost is known up front.', cta: 'See the result' }
 };
 function interHtml(n) {
   var d = INTER[n];
@@ -1366,7 +1420,7 @@ var CHAPTERS = [
   { n: 1, t: 'First ride', s: 'Rate, join, thank-you page', start: 'c1' },
   { n: 2, t: 'Next ride', s: 'Progress next to the stars', start: 'c2' },
   { n: 3, t: 'Anytime', s: 'Quick rating, menu, program page', start: 'c3' },
-  { n: 4, t: 'Goal reached', s: 'The capped fund pays out', start: 'c4' }
+  { n: 4, t: 'Goal reached', s: 'The monthly fund pays out', start: 'c4' }
 ];
 var ORDER = ['c1', 'arrive', 'sheet', 'story', 'thanks', 'c2', 'ride', 'rideSheet', 'rideDone', 'c3', 'reopen', 'home', 'menu', 'impact', 'c4', 'cap', 'end'];
 
@@ -1434,8 +1488,8 @@ var STEPS = {
   tyImpact: {
     ch: 1, map: 'arrived', base: bArrived,
     page: function () { return ['impact-ty', impactPage({ ch: 1, count: S.count, given: S.given })]; },
-    enter: function () { later(function () { fillBars(LY.page); }, 400); },
-    target: '[data-hint=play]', tip: 'Play the video',
+    enter: function () { later(function () { fillBars(LY.page); }, 400); autoPlay(); },
+    target: function () { return S.played ? null : '[data-hint=play]'; }, tip: 'Play the video',
     panel: ['The program page', 'Video, shared goal, your part.'],
     next: function () { go('c2'); }
   },
@@ -1461,7 +1515,16 @@ var STEPS = {
   rideDone: {
     ch: 2, map: 'ride', base: bMoving,
     enter: function () { rideDoneFx(); },
-    panel: ['Bonus unlocked', 'In a ride, a snackbar says thanks.'],
+    target: function () { return $('.snack-link', LY.toast) ? '.snack-link' : null; }, tip: 'Tap to open the program',
+    panel: ['Bonus unlocked', 'In a ride, a snackbar says thanks. The program name opens the page.'],
+    next: function () { go('c3'); }
+  },
+  rideImpact: {
+    ch: 2, map: 'ride', base: bMoving,
+    page: function () { return ['impact-ride', impactPage({ ch: 2, count: S.count, given: S.given })]; },
+    enter: function () { later(function () { fillBars(LY.page); }, 400); autoPlay(); },
+    target: function () { return S.played ? null : '[data-hint=play]'; }, tip: 'Play the video',
+    panel: ['The program page', 'Opened from the snackbar, mid-ride.'],
     next: function () { go('c3'); }
   },
   c3: {
@@ -1505,7 +1568,7 @@ var STEPS = {
   impact: {
     ch: 3, map: 'home', base: bHome,
     page: function () { return ['impact-3', impactPage({ ch: 3, count: S.count, given: S.given })]; },
-    enter: function () { later(function () { fillBars(LY.page); }, 450); },
+    enter: function () { later(function () { fillBars(LY.page); }, 450); autoPlay(); },
     target: function () { return S.played ? null : '[data-hint=play]'; }, tip: 'Play the video',
     panel: ['The program page', 'Video, shared goal, your part, FAQ.'],
     next: function () { go('c4'); }
@@ -1521,7 +1584,7 @@ var STEPS = {
     ch: 4, map: 'home', base: bHome,
     page: function () { return ['impact-cap', impactPage({ ch: 4, cap: true, count: S.count, given: S.given, noanim: true })]; },
     enter: function () { later(function () { fillBars(LY.page); confetti(110); }, 350); later(pulseNext, 4200); },
-    panel: ['Goal reached', 'Everyone sees the result. The next goal opens on 1 December.'],
+    panel: ['Monthly goal reached', 'Same fund every month. December opens on the 1st.'],
     next: function () { go('end'); }
   },
   end: {
@@ -1685,17 +1748,19 @@ function rideDoneFx() {
           S.given += CFG.bonus;
           var g = $('#ofrIc'); if (g) g.classList.add('on');
           burstAt(g, 14); plusAt(g, '+' + sol(CFG.bonus)); confetti(70);
-          later(function () { snack('<b>inDrive adds ' + sol(1) + ' + ' + sol(CFG.bonus) + ' bonus</b><small>to ' + CFG.program + ' · ' + sol(S.given) + ' from your ratings so far</small>', { lime: true, ms: 4000 }); }, 1500);
+          later(function () { snack('<b>inDrive adds ' + sol(1) + ' + ' + sol(CFG.bonus) + ' bonus</b><small>to ' + snackProgLink() + ' · ' + sol(S.given) + ' from your ratings so far</small>', { lime: true, ms: 7000 }); armHint(500, 1700); }, 1500);
           later(pulseNext, 2400);
         }, 900);
       } else {
-        snack('<b>inDrive gives ' + sol(1) + '</b><small>to ' + CFG.program + '</small>', { lime: true, ms: 3600 });
+        snack('<b>inDrive gives ' + sol(1) + '</b><small>to ' + snackProgLink() + '</small>', { lime: true, ms: 6000 }); armHint(500, 1700);
       }
     });
   }, 450);
 }
 
 /* ---------- program page video ---------- */
+/* the program page starts its video by itself; the poster stays for a beat so the page can settle */
+function autoPlay() { S.played = false; later(function () { if (!S.played && $('#ipHero')) playVideo(); }, 900); }
 function playVideo() {
   var hero = $('#ipHero'); if (!hero) return;
   S.played = true; disarmHint();
@@ -1740,7 +1805,8 @@ function plusAt(el, text) {
   if (!el) return;
   var r = relRect(el), p = document.createElement('div');
   p.className = 'plus'; p.textContent = text;
-  p.style.left = (r.x + r.w / 2 - 20) + 'px'; p.style.top = (r.y - 18) + 'px';
+  /* wide targets (progress bars) get the label at their right end, clear of the title above */
+  p.style.left = (r.w > 120 ? r.x + r.w - 44 : r.x + r.w / 2 - 20) + 'px'; p.style.top = (r.y - 18) + 'px';
   LY.fx.appendChild(p); setTimeout(function () { p.remove(); }, 1100);
 }
 function burstAt(el, n) {
@@ -1769,11 +1835,12 @@ function snack(html, o) {
   LY.toast.innerHTML = '<div class="snack" role="status">' + (o.lime ? '<span class="ok lime">' + ic('handHeart', 15, 2.4) + '</span>' : '') + '<div>' + html + '</div></div>';
   SNACK_T = setTimeout(function () { hideSnack(); }, o.ms || 3200);
 }
+function snackProgLink() { return '<button class="snack-link"' + act('snackImpactRide') + '>' + CFG.program + '</button>'; }
 function hideSnack(now) {
   clearTimeout(SNACK_T);
   var s = $('.snack', LY.toast); if (!s) return;
   if (now) { LY.toast.innerHTML = ''; return; }
-  s.classList.add('out'); setTimeout(function () { if (s.parentNode) s.remove(); }, 320);
+  s.classList.add('out'); setTimeout(function () { if (s.parentNode) s.remove(); if (!stepTarget(STEPS[S.step])) disarmHint(); }, 320);
 }
 function pulseNext() { $$('[data-next]').forEach(function (b) { b.classList.remove('pulse'); void b.offsetWidth; b.classList.add('pulse'); }); }
 
@@ -1932,10 +1999,11 @@ var ACTIONS = {
   tyDone: function () { go('c2'); },
   openImpact: function () { go('tyImpact'); },
   snackImpact: function () { hideSnack(true); go('impact'); },
+  snackImpactRide: function () { hideSnack(true); go('rideImpact'); },
   menu: function () { go('menu'); },
   menuClose: function () { go('home'); },
   menuImpact: function () { go('impact'); },
-  impactBack: function () { if (S.step === 'tyImpact') { S.history.pop(); go('thanks', { noHistory: true }); } else if (S.step === 'impact') go('home'); },
+  impactBack: function () { if (S.step === 'tyImpact') { S.history.pop(); go('thanks', { noHistory: true }); } else if (S.step === 'rideImpact') { S.history.pop(); go('rideDone', { noHistory: true, keepState: true }); } else if (S.step === 'impact') go('home'); },
   play: function () { playVideo(); },
   replay: function () { playVideo(); },
   faq: function (a, el) { if (el && el.parentNode) el.parentNode.classList.toggle('open'); },
@@ -1973,18 +2041,19 @@ function coverHtml() {
     '<div class="cv-text">' +
       (MODE === 'mobile' ? '<div class="cv-badge-m">' + badgeSvg(72) + '</div>' : '') +
       '<h1 class="cv-h1">Stars for <span>Impact</span></h1>' +
-      '<div class="cv-chain">' +
-        '<div class="cv-link"><span class="n">' + ic('star', 20, 2) + '</span><b>Rate a ride</b></div>' +
-        '<span class="cv-arrow">' + ic('arrowR', 22, 2.2) + '</span>' +
-        '<div class="cv-link"><span class="n">' + ic('handHeart', 20, 1.9) + '</span><b>inDrive donates to social projects</b></div>' +
+      '<p class="cv-sub cv-tag">Rate your ride.<br>Make an impact.</p>' +
+      '<div class="cv-two">' +
+        '<div class="cv-tile"><span class="n">' + ic('star', 18, 2.2) + '</span><b>Honest ratings</b><small>from riders who never rate</small></div>' +
+        '<div class="cv-tile"><span class="n">' + ic('handHeart', 18, 2) + '</span><b>PDP engagement</b><small>one tap to join</small></div>' +
       '</div>' +
       '<button class="cv-cta"' + act('start') + '>Start demo<span class="arr">' + ic('arrowR', 18, 2.4) + '</span></button>' +
+      qrHtml() +
     '</div>' +
   '</section>';
 }
 function footHtml() { return ''; }
 function qrHtml() {
-  return MODE === 'desktop' && CFG.publicUrl ? '<div class="cv-qr" id="cvQr"><div id="qrBox" style="width:74px;height:74px"></div><div><b>Try it on your phone</b><small>Scan the code</small></div></div>' : '';
+  return MODE === 'desktop' && CFG.publicUrl ? '<div class="cv-qr" id="cvQr"><div id="qrBox" style="width:112px;height:112px"></div><div><b>Try it on your phone</b><small>Scan the code</small></div></div>' : '';
 }
 function panelHtml() {
   return '<aside class="panel" id="panel">' +
@@ -2016,7 +2085,7 @@ function buildShell() {
   var root = LY.root;
   root.className = MODE + (S.started ? ' started' : '');
   if (MODE === 'desktop') {
-    root.innerHTML = '<div class="bg-glow"></div><div class="wrap" id="wrap"><div class="left" id="left">' + coverHtml() + panelHtml() + '</div>' + deviceHtml() + '</div>' + footHtml() + qrHtml();
+    root.innerHTML = '<div class="bg-glow"></div><div class="wrap" id="wrap"><div class="left" id="left">' + coverHtml() + panelHtml() + '</div>' + deviceHtml() + '</div>' + footHtml();
   } else {
     root.innerHTML = '<div class="bg-glow"></div>' + coverHtml() + '<div class="mapp" id="mapp">' + mbarHtml() + deviceHtml() + '</div>';
   }
