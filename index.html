@@ -1770,11 +1770,11 @@ function rideDoneFx() {
           S.given += CFG.bonus;
           var g = $('#ofrIc'); if (g) g.classList.add('on');
           burstAt(g, 14); plusAt(g, '+' + sol(CFG.bonus)); confetti(70);
-          later(function () { snack('<b>inDrive adds ' + sol(1) + ' + ' + sol(CFG.bonus) + ' bonus</b><small>to ' + snackProgLink() + ' · ' + sol(S.given) + ' from your ratings so far</small>', { lime: true, ms: 7000 }); armHint(500, 1700); }, 1500);
+          later(function () { snack('<b>inDrive adds ' + sol(1) + ' + ' + sol(CFG.bonus) + ' bonus</b><small>to ' + snackProgLink() + ' · ' + sol(S.given) + ' from your ratings so far</small>', { lime: true, ms: 7000 }); armHint(3000); }, 1500);
           later(pulseNext, 2400);
         }, 900);
       } else {
-        snack('<b>inDrive gives ' + sol(1) + '</b><small>to ' + snackProgLink() + '</small>', { lime: true, ms: 6000 }); armHint(500, 1700);
+        snack('<b>inDrive gives ' + sol(1) + '</b><small>to ' + snackProgLink() + '</small>', { lime: true, ms: 6000 }); armHint(3000);
       }
     });
   }, 450);
@@ -1961,8 +1961,7 @@ function armHint(d1, d2) {
   if (!S.started || NOHINT) return;
   var st = STEPS[S.step]; if (!st || st.noHint) return;
   if (!stepTarget(st)) { if (!st.noNext) HT.a = setTimeout(nudgeNext, d1 || st.nextAfter || 1300); return; }
-  HT.a = setTimeout(showRing, d1 || 1300);
-  HT.b = setTimeout(function () { showRing(); showTip(); }, d2 || 2800);
+  HT.a = setTimeout(showRing, d1 || 4000);
 }
 function disarmHint() { clearTimeout(HT.a); clearTimeout(HT.b); if (LY.hint) LY.hint.innerHTML = ''; $$('[data-next]').forEach(function (b) { b.classList.remove('glow'); }); }
 function nudgeNext() {
@@ -1979,13 +1978,9 @@ function handSvg() { return '<svg class="hand" width="48" height="48" viewBox="0
 function showRing() {
   var st = STEPS[S.step]; if (st && st.noHint) return;
   var el = targetEl(); if (!el) return;
-  if (el.classList.contains('stars')) { showTip(); return; } /* stars: just the tooltip, no ring or blinking dot */
   if (el.closest('.dr-list, .rate-sheet')) { try { el.scrollIntoView({ block: 'nearest' }); } catch (e) { /* old browsers */ } }
   var r = relRect(el), pad = 6, br = Math.min(28, (parseFloat(getComputedStyle(el).borderRadius) || 12) + pad);
-  /* keep the dot off the label: wide buttons get it near the right end, menu rows between the label and the meta; stars stay centred */
-  var dx = el.classList.contains('stars') ? r.w / 2 : el.classList.contains('dr-it') ? r.w * 0.7 : r.w > 120 ? r.w - 38 : r.w / 2;
-  var old = $('.hint-ring', LY.hint), html = '<div class="hint-ring" style="left:' + (r.x - pad) + 'px;top:' + (r.y - pad) + 'px;width:' + (r.w + pad * 2) + 'px;height:' + (r.h + pad * 2) + 'px;border-radius:' + br + 'px"></div>' +
-    '<div class="hint-tap" style="left:' + (r.x + dx) + 'px;top:' + (r.y + r.h / 2) + 'px"><span class="rip"></span><span class="rip r2"></span><span class="dot"></span></div>';
+  var old = $('.hint-ring', LY.hint), html = '<div class="hint-ring" style="left:' + (r.x - pad) + 'px;top:' + (r.y - pad) + 'px;width:' + (r.w + pad * 2) + 'px;height:' + (r.h + pad * 2) + 'px;border-radius:' + br + 'px"></div>';
   if (old) { var tip = $('.hint-tip', LY.hint); LY.hint.innerHTML = html; if (tip) LY.hint.appendChild(tip); } else LY.hint.innerHTML = html;
 }
 function showTip() {
