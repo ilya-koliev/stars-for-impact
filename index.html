@@ -1974,8 +1974,10 @@ function showRing() {
   if (el.closest('.dr-list, .rate-sheet')) { try { el.scrollIntoView({ block: 'nearest' }); } catch (e) { /* old browsers */ } }
   var r = relRect(el), pad = 6, br = Math.min(28, (parseFloat(getComputedStyle(el).borderRadius) || 12) + pad);
   var sweep = el.classList.contains('stars'); /* the dot glides across all five: any star works */
+  /* keep the dot off the label: wide buttons get it near the right end, menu rows between the label and the meta */
+  var dx = sweep ? r.w / 2 : el.classList.contains('dr-it') ? r.w * 0.7 : r.w > 120 ? r.w - 38 : r.w / 2;
   var old = $('.hint-ring', LY.hint), html = '<div class="hint-ring" style="left:' + (r.x - pad) + 'px;top:' + (r.y - pad) + 'px;width:' + (r.w + pad * 2) + 'px;height:' + (r.h + pad * 2) + 'px;border-radius:' + br + 'px"></div>' +
-    '<div class="hint-tap' + (sweep ? ' sweep' : '') + '" style="left:' + (r.x + r.w / 2) + 'px;top:' + (r.y + r.h / 2) + 'px;--sw:' + Math.round(r.w / 2 - 28) + 'px"><span class="rip"></span><span class="rip r2"></span><span class="dot"></span></div>';
+    '<div class="hint-tap' + (sweep ? ' sweep' : '') + '" style="left:' + (r.x + dx) + 'px;top:' + (r.y + r.h / 2) + 'px;--sw:' + Math.round(r.w / 2 - 28) + 'px"><span class="rip"></span><span class="rip r2"></span><span class="dot"></span></div>';
   if (old) { var tip = $('.hint-tip', LY.hint); LY.hint.innerHTML = html; if (tip) LY.hint.appendChild(tip); } else LY.hint.innerHTML = html;
 }
 function showTip() {
