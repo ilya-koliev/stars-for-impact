@@ -792,6 +792,17 @@ img { display: block; }
   .plus { animation: none !important; }
   .confetti { display: none; }
 }
+
+/* ===== hint hand: tap gesture ===== */
+.hint-hand { display: none; }
+.hint-tap { position: absolute; width: 0; height: 0; pointer-events: none; z-index: 2; }
+.hint-tap .hand { position: absolute; left: -23px; top: -13px; width: 48px; height: 48px; overflow: visible; transform-origin: 23px 13px; filter: drop-shadow(0 4px 8px rgba(0, 0, 0, .3)); animation: tapHand 1.7s ease-in-out infinite; }
+.hint-tap .rip { position: absolute; left: -19px; top: -19px; width: 38px; height: 38px; border-radius: 50%; border: 3px solid #C1F11D; box-shadow: 0 0 0 1px rgba(20, 20, 20, .12), inset 0 0 0 1px rgba(20, 20, 20, .08); opacity: 0; animation: tapRip 1.7s ease-out infinite; }
+.hint-tap .rip.r2 { animation-delay: .22s; }
+@keyframes tapHand { 0% { transform: translate(10px, 14px); } 32% { transform: translate(0, 0) scale(1); } 42% { transform: translate(0, 1px) scale(.9); } 56% { transform: translate(0, 0) scale(1); } 100% { transform: translate(10px, 14px); } }
+@keyframes tapRip { 0%, 38% { transform: scale(.25); opacity: 0; } 44% { opacity: 1; } 100% { transform: scale(1.7); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .hint-tap .hand { animation: none !important; } .hint-tap .rip { display: none; } }
+.ip-trans { font-size: 14px; font-style: italic; color: #6A6B6E; margin-top: 4px; }
 </style>
 </head>
 <body>
@@ -1193,16 +1204,16 @@ function impactPage(o) {
   var fundPct = pct(f.raised, CFG.fundGoal);
   var hero = cap
     ? '<div class="cap-hero" id="capHero"><div class="tro">' + ic('trophy', 40, 1.8) + '</div><h2>Goal reached</h2>' +
-      '<p>In 27 days, ratings from Lima riders unlocked the full ' + sol(CFG.fundGoal) + ' from inDrive. That’s about <b>83 full driving-school scholarships</b>.</p>' +
+      '<p>In 27 days, ratings from Lima riders unlocked the full ' + sol(CFG.fundGoal) + ' from inDrive for <b>driving-school scholarships</b> for women.</p>' +
       '<div class="bar"><i data-w="100"></i></div><div class="ic-row" style="margin-top:8px"><span>' + fmt(f.riders) + ' riders joined</span><b>' + sol(CFG.fundGoal) + '</b></div></div>'
     : '<div class="ip-hero" id="ipHero">' + heroPoster() + '</div>';
   return '<div class="page' + (o.noanim ? ' noanim' : '') + '" id="ipPage">' +
     '<div class="pg-nav"><button class="nb"' + act('impactBack') + ' aria-label="Back">' + ic('back', 24, 2) + '</button><h1>Social impact</h1></div>' +
     hero +
     '<div class="ip-sec"><span class="ip-chip">' + ic('handHeart', 14, 2.2) + 'inDrive social program · Peru</span>' +
-      '<h2 class="ip-title">' + CFG.program + '</h2>' +
+      '<h2 class="ip-title">' + CFG.program + '</h2><p class="ip-trans">“Together, we go further”</p>' +
       '<p class="ip-lead">We help women in Peru get a driving licence, and the chance to earn on their own terms with inDrive.</p>' +
-      '<div class="ip-facts"><div><b>700</b><small>licences in 2025</small></div><div><b>1,100+</b><small>scholarships in 2026</small></div><div><b>' + sol(1200) + '</b><small>one woman’s licence</small></div></div></div>' +
+      '<div class="ip-facts"><div><b>700</b><small>licences in 2025</small></div><div><b>1,100+</b><small>scholarships in 2026</small></div><div><b>19,000+</b><small>women applied in 2025</small></div></div></div>' +
     '<div class="ip-sec">' +
       (cap ? '' : '<div class="ip-card"><h3>Lima pilot fund</h3><div class="ip-big">' + sol(f.raised) + ' <small>of ' + sol(CFG.fundGoal) + '</small></div>' +
         '<div class="bar"><i data-w="' + fundPct + '"></i></div><div class="r2"><span>' + fmt(f.riders) + ' riders joined</span><span>' + f.days + ' days left</span></div></div>') +
@@ -1215,7 +1226,7 @@ function impactPage(o) {
     '<div class="ip-sec"><h3 style="font-size:20px;font-weight:800;letter-spacing:-.4px;color:#111">How it works</h3><div class="ip-steps">' +
       '<div class="ip-step"><span class="n">' + ic('star', 22, 1.9) + '</span><div><b>You rate any ride</b><small>Good or bad. Every honest rating counts.</small></div></div>' +
       '<div class="ip-step"><span class="n">' + ic('handHeart', 22, 1.8) + '</span><div><b>inDrive gives ' + sol(1) + '</b><small>From inDrive’s budget, never from your fare. Every ' + CFG.bonusEvery + ' ratings add a ' + sol(CFG.bonus) + ' bonus.</small></div></div>' +
-      '<div class="ip-step"><span class="n">' + ic('idcard', 22, 1.8) + '</span><div><b>Women get their licence</b><small>About ' + sol(1200) + ' covers one path: lessons, medical check and exam fees.</small></div></div>' +
+      '<div class="ip-step"><span class="n">' + ic('idcard', 22, 1.8) + '</span><div><b>Women get their licence</b><small>The fund pays scholarships at partner driving schools in Lima.</small></div></div>' +
     '</div></div>' +
     '<div class="ip-sec"><div class="ip-note">' + ic('shieldOk', 20, 2) + '<span><b>Low ratings count too.</b> The reasons you pick still go to our safety team first.</span></div></div>' +
     '<div class="ip-sec"><div class="ip-report dead"><span class="em">' + ic('doc', 22, 1.8) + '</span><div style="flex:1"><b>Monthly impact report</b><small>Where the money went. Next report on 1 December</small></div>' + ic('chevR', 18, 2, 'chev') + '</div></div>' +
@@ -1239,7 +1250,7 @@ function faqIt(q, a) {
 }
 var VIDEO = [
   ['In 2025, <span>19,000+ women</span> applied to learn to drive', 1],
-  ['A licence costs about S/ 1,200. Many can’t spare that', 3],
+  ['Driving school costs more than many can spare', 3],
   ['<span>Juntas Llegamos Más Lejos</span> gives scholarships for lessons and exams', 2],
   ['Now every rating helps: <span>S/ 1 each</span>', 0]
 ];
@@ -1814,13 +1825,13 @@ function targetEl() {
   var sel = stepTarget(STEPS[S.step]); if (!sel) return null;
   var els = $$(sel, LY.screen).filter(visible); return els[0] || null;
 }
-function handSvg() { return '<svg width="44" height="44" viewBox="0 0 24 24"><path d="' + 'M9 11V4.8a1.8 1.8 0 0 1 3.6 0V10l4.8.8a2 2 0 0 1 1.6 2.3l-.8 4.6a3 3 0 0 1-3 2.5H11a3 3 0 0 1-2.3-1.1L5 14.5a1.6 1.6 0 0 1 2.3-2.2z' + '" fill="#fff" stroke="#111" stroke-width="1.4" stroke-linejoin="round"/></svg>'; }
+function handSvg() { return '<svg class="hand" width="48" height="48" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.84 15.87l-4.54-2.26c-.17-.07-.35-.11-.54-.11H13v-6c0-.83-.67-1.5-1.5-1.5S10 6.67 10 7.5v10.74l-3.43-.72c-.08-.01-.15-.03-.24-.03-.31 0-.59.13-.79.33l-.79.8 4.94 4.94c.27.27.65.44 1.06.44h6.79c.75 0 1.33-.55 1.44-1.28l.75-5.27c.01-.07.02-.14.02-.2 0-.62-.38-1.16-.91-1.38z" fill="#fff" stroke="#141414" stroke-width="1.15" stroke-linejoin="round" paint-order="stroke"/></svg>'; }
 function showRing() {
   var el = targetEl(); if (!el) return;
   if (el.closest('.dr-list, .rate-sheet')) { try { el.scrollIntoView({ block: 'nearest' }); } catch (e) { /* old browsers */ } }
   var r = relRect(el), pad = 6, br = Math.min(28, (parseFloat(getComputedStyle(el).borderRadius) || 12) + pad);
   var old = $('.hint-ring', LY.hint), html = '<div class="hint-ring" style="left:' + (r.x - pad) + 'px;top:' + (r.y - pad) + 'px;width:' + (r.w + pad * 2) + 'px;height:' + (r.h + pad * 2) + 'px;border-radius:' + br + 'px"></div>' +
-    '<div class="hint-hand" style="left:' + (r.x + r.w / 2 - 8) + 'px;top:' + (r.y + r.h / 2 - 2) + 'px">' + handSvg() + '</div>';
+    '<div class="hint-tap" style="left:' + (r.x + r.w / 2) + 'px;top:' + (r.y + r.h / 2) + 'px"><span class="rip"></span><span class="rip r2"></span>' + handSvg() + '</div>';
   if (old) { var tip = $('.hint-tip', LY.hint); LY.hint.innerHTML = html; if (tip) LY.hint.appendChild(tip); } else LY.hint.innerHTML = html;
 }
 function showTip() {
